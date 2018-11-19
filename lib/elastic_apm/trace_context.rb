@@ -18,11 +18,17 @@ module ElasticAPM
 
     def self.for_transaction(transaction)
       new.tap do |t|
-        t.trace_id =
-          transaction&.trace_context&.trace_id ||
-          SecureRandom.hex(16)
+        t.trace_id = SecureRandom.hex(16)
+        t.span_id = SecureRandom.hex(8)
         t.recorded = transaction && transaction.sampled?
-        t.span_id = transaction.id
+      end
+    end
+
+    def self.for_span
+      new.tap do |t|
+        t.trace_id = SecureRandom.hex(16)
+        t.span_id = SecureRandom.hex(8)
+        t.recorded = true
       end
     end
 
@@ -57,8 +63,8 @@ module ElasticAPM
       format('%02x', flags.to_i(2))
     end
 
-    def child(span)
-      dup.tap { |tc| tc.span_id = span.id }
+    def child
+      dup.tap { |tc| tc.span_id = SecureRandom.hex(8) }
     end
 
     def to_header

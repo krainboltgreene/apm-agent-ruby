@@ -129,7 +129,13 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/AbcSize
-    def start_span(name, type = nil, backtrace: nil, context: nil)
+    def start_span(
+      name,
+      type = nil,
+      backtrace: nil,
+      context: nil,
+      trace_context: nil
+    )
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
 
@@ -148,7 +154,7 @@ module ElasticAPM
         transaction_id: transaction.id,
         parent_id: parent.id,
         context: context,
-        trace_context: parent.trace_context
+        trace_context: trace_context || parent.trace_context.child
       )
 
       if backtrace && span_frames_min_duration?

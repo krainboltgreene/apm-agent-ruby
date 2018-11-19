@@ -26,11 +26,9 @@ module ElasticAPM
       @context = context || Context.new # TODO: Lazy generate this?
       Util.reverse_merge!(@context.tags, tags) if tags
 
-      @id = SecureRandom.hex(8)
-
       if trace_context
-        @trace_context = trace_context
         @parent_id = trace_context.span_id
+        @trace_context = trace_context
       else
         @trace_context = TraceContext.for_transaction(self)
       end
@@ -44,8 +42,12 @@ module ElasticAPM
 
     attr_accessor :name, :type, :result
 
-    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
+    attr_reader :context, :duration, :started_spans, :dropped_spans,
       :timestamp, :trace_context, :notifications, :parent_id
+
+    def id
+      trace_context.span_id
+    end
 
     def sampled?
       @sampled
@@ -67,8 +69,8 @@ module ElasticAPM
 
     # life cycle
 
-    def start
-      @timestamp = Util.micros
+    def start(timestamp = Util.micros)
+      @timestamp = timestamp
       self
     end
 

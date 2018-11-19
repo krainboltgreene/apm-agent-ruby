@@ -11,7 +11,7 @@ module ElasticAPM
 
       its(:version) { should be '00' }
       its(:trace_id) { should match(/.{16}/) }
-      its(:span_id) { should be transaction.id }
+      its(:span_id) { should match(/.{8}/) }
       it { should be_recorded }
     end
 
