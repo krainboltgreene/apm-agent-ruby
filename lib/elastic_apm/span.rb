@@ -27,7 +27,7 @@ module ElasticAPM
       @parent_id = parent_id
       @trace_context = trace_context || TraceContext.for_span
 
-      @context = context
+      @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists
@@ -52,12 +52,12 @@ module ElasticAPM
       self
     end
 
-    def stop
-      @duration = Util.micros - timestamp
+    def stop(end_timestamp = Util.micros)
+      @duration = end_timestamp - timestamp
     end
 
-    def done
-      stop
+    def done(end_time: Util.micros)
+      stop end_time
 
       if should_build_stacktrace?
         build_stacktrace

@@ -17,8 +17,14 @@ module ElasticAPM
       end
 
       def finish(end_time: Time.now)
-        return unless @elastic_span
+        elastic_span.done end_time: Util.micros(end_time)
 
+        case elastic_span
+        when ElasticAPM::Transaction
+          ElasticAPM.end_transaction
+        when ElasticAPM::Span
+          ElasticAPM.end_span
+        end
       end
     end
 
@@ -104,6 +110,7 @@ module ElasticAPM
         scope_manager.active_scope&.span
       end
 
+      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       def start_span(
         operation_name,
         child_of: nil,
@@ -119,12 +126,18 @@ module ElasticAPM
           ignore_active_scope: ignore_active_scope
         )
 
-        elastic_span =
-          if ElasticAPM.current_transaction
+        if ElasticAPM.current_transaction
+          elastic_span =
             ElasticAPM.start_span(operation_name, trace_context: context)
-          else
-            ElasticAPM.start_transaction(operation_name, trace_context: context)
-          end
+        else
+          elastic_span =
+            ElasticAPM.start_transaction(
+              operation_name,
+              trace_context: context
+            )
+        end
+
+        tags.each { |key, value| elastic_span.context.tags[key] = value }
 
         unless elastic_span
           return ::OpenTracing::Span::NOOP_INSTANCE
@@ -134,13 +147,15 @@ module ElasticAPM
 
         Span.new(elastic_span)
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
+      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       def start_active_span(
         operation_name,
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        tags: nil,
+        tags: {},
         ignore_active_scope: false,
         finish_on_close: true,
         **
@@ -165,6 +180,7 @@ module ElasticAPM
 
         scope
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
       private
 

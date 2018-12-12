@@ -74,14 +74,14 @@ module ElasticAPM
       self
     end
 
-    def stop
+    def stop(end_timestamp = Util.micros)
       raise 'Transaction not yet start' unless timestamp
-      @duration = Util.micros - timestamp
+      @duration = end_timestamp - timestamp
       self
     end
 
-    def done(result = nil)
-      stop
+    def done(result = nil, end_time: Util.micros)
+      stop end_time
       self.result = result if result
       self
     end

@@ -63,21 +63,35 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
   end
 
-  describe 'example' do
+  describe 'example', :intercept do
     before { ElasticAPM.start }
     after { ElasticAPM.stop }
 
-    it 'starts a transaction, sets it as current' do
-      OpenTracing.start_active_span('operation_name') do |scope|
+    it 'traces nested spans' do
+      OpenTracing.start_active_span(
+        'operation_name',
+        tags: { test: '0' }
+      ) do |scope|
         expect(scope).to be_a(ElasticAPM::OpenTracing::Scope)
         expect(OpenTracing.active_span).to be scope.span
         expect(OpenTracing.active_span).to be_a ElasticAPM::OpenTracing::Span
 
-        OpenTracing.start_span('nested') do |scope|
-          pp scope
+        OpenTracing.start_active_span(
+          'nested',
+          tags: { test: '1' }
+        ) do
           expect(OpenTracing.active_span).to_not be_nil
         end
       end
+
+      expect(@intercepted.transactions.length).to be 1
+      expect(@intercepted.spans.length).to be 1
+
+      transaction, = @intercepted.transactions
+      expect(transaction.context.tags).to match(test: '0')
+
+      span, = @intercepted.spans
+      expect(span.context.tags).to match(test: '1')
     end
   end
 end
