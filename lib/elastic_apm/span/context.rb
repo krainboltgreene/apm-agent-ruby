@@ -5,6 +5,7 @@ module ElasticAPM
     # @api private
     class Context
       def initialize(db: nil, http: nil, tags: {})
+        @sync = true
         @db = db && Db.new(db)
         @http = http && Http.new(http)
         @tags = tags

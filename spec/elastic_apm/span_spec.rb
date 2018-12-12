@@ -10,7 +10,7 @@ module ElasticAPM
       its(:transaction_id) { should be_nil }
       its(:timestamp) { should be_nil }
       its(:parent_id) { should be_nil }
-      its(:context) { should be_nil }
+      its(:context) { should be_a Span::Context }
 
       context 'with a trace context' do
         it 'creates a child trace context' do
