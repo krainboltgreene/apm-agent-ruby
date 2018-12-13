@@ -61,6 +61,62 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         end
       end
     end
+
+    describe '#inject' do
+      let(:context) do
+        ElasticAPM::TraceContext.parse(
+          '00-11111111111111111111111111111111-2222222222222222-00'
+        )
+      end
+      let(:carrier) { {} }
+
+      subject { tracer.inject(context, format, carrier) }
+
+      context 'Rack' do
+        let(:format) { ::OpenTracing::FORMAT_RACK }
+
+        it 'sets a header' do
+          subject
+          expect(carrier['elastic-apm-traceparent']).to eq context.to_header
+        end
+      end
+
+      context 'Binary' do
+        let(:format) { ::OpenTracing::FORMAT_BINARY }
+
+        it 'warns about lack of support' do
+          expect(tracer).to receive(:warn).with(/Only injection via/)
+          subject
+        end
+      end
+    end
+
+    describe '#extract' do
+      let(:carrier) do
+        { 'elastic-apm-traceparent' =>
+          '00-11111111111111111111111111111111-2222222222222222-00' }
+      end
+
+      subject { tracer.extract(format, carrier) }
+
+      context 'Rack' do
+        let(:format) { ::OpenTracing::FORMAT_RACK }
+
+        it 'returns a trace context' do
+          expect(subject).to be_a ElasticAPM::TraceContext
+          expect(subject.trace_id).to eq '11111111111111111111111111111111'
+        end
+      end
+
+      context 'Binary' do
+        let(:format) { ::OpenTracing::FORMAT_BINARY }
+
+        it 'warns about lack of support' do
+          expect(tracer).to receive(:warn).with(/Only extraction from/)
+          subject
+        end
+      end
+    end
   end
 
   describe 'example', :intercept do

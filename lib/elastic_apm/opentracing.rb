@@ -182,6 +182,27 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
+      def inject(span_context, format, carrier)
+        case format
+        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
+          carrier['elastic-apm-traceparent'] = span_context.to_header
+        else
+          warn 'Only injection via HTTP headers and Rack is available'
+        end
+      end
+
+      def extract(format, carrier)
+        case format
+        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
+          ElasticAPM::TraceContext.parse(carrier['elastic-apm-traceparent'])
+        else
+          warn 'Only extraction from HTTP headers and Rack is available'
+          nil
+        end
+      rescue ElasticAPM::TraceContext::InvalidTraceparentHeader
+        nil
+      end
+
       private
 
       def prepare_span_context(
