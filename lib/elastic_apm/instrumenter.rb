@@ -128,7 +128,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     def start_span(
       name,
       type = nil,
@@ -165,7 +165,7 @@ module ElasticAPM
 
       span.start
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def end_span

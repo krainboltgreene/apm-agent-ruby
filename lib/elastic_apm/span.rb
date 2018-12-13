@@ -53,7 +53,7 @@ module ElasticAPM
     end
 
     def stop(end_timestamp = Util.micros)
-      @duration = end_timestamp - timestamp
+      @duration ||= (end_timestamp - timestamp)
     end
 
     def done(end_time: Util.micros)
