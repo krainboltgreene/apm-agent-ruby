@@ -98,6 +98,7 @@ module ElasticAPM
       end
     end
 
+    # rubocop:disable Metrics/ClassLength
     # A custom tracer to use the OpenTracing API with ElasticAPM
     class Tracer
       def initialize
@@ -235,5 +236,6 @@ module ElasticAPM
         @scope_manager.active_scope&.span&.context
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
