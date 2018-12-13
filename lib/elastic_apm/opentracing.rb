@@ -185,7 +185,7 @@ module ElasticAPM
 
       def inject(span_context, format, carrier)
         case format
-        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
+        when ::OpenTracing::FORMAT_RACK
           carrier['elastic-apm-traceparent'] = span_context.to_header
         else
           warn 'Only injection via HTTP headers and Rack is available'
@@ -194,8 +194,9 @@ module ElasticAPM
 
       def extract(format, carrier)
         case format
-        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
-          ElasticAPM::TraceContext.parse(carrier['elastic-apm-traceparent'])
+        when ::OpenTracing::FORMAT_RACK
+          ElasticAPM::TraceContext
+            .parse(carrier['HTTP_ELASTIC_APM_TRACEPARENT'])
         else
           warn 'Only extraction from HTTP headers and Rack is available'
           nil

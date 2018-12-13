@@ -93,7 +93,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
     describe '#extract' do
       let(:carrier) do
-        { 'elastic-apm-traceparent' =>
+        { 'HTTP_ELASTIC_APM_TRACEPARENT' =>
           '00-11111111111111111111111111111111-2222222222222222-00' }
       end
 
