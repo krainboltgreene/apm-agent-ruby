@@ -65,3 +65,6 @@ Style/NumericPredicate:
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false

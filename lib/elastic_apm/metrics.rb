@@ -11,3 +11,4 @@ end
 
 require 'elastic_apm/metrics/system_cpu'
 require 'elastic_apm/metrics/system_memory'
+require 'elastic_apm/metrics/process_memory'
