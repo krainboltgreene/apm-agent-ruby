@@ -7,6 +7,8 @@ require 'elastic_apm/error'
 require 'elastic_apm/transport/base'
 require 'elastic_apm/spies'
 
+require 'elastic_apm/metrics'
+
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
